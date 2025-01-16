@@ -161,7 +161,7 @@ func (c *Connection) ConnectCtx(ctx context.Context) error {
 		return nil
 	}
 
-	d := &net.Dialer{Timeout: c.Opts.ConnectTimeout}
+	d := &net.Dialer{Timeout: c.Opts.ConnectTimeout, KeepAliveConfig: c.Opts.KeepAliveConfig}
 
 	if c.Opts.TLSConfig != nil {
 		conn, err = tls.DialWithDialer(d, "tcp", c.addr, c.Opts.TLSConfig)

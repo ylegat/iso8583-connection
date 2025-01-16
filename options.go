@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"time"
 
@@ -16,6 +17,8 @@ type Options struct {
 	// ConnectTimeout sets the timeout for establishing new connections.
 	// The default is 10 seconds.
 	ConnectTimeout time.Duration
+
+	KeepAliveConfig net.KeepAliveConfig
 
 	// SendTimeout sets the timeout for a Send operation.
 	// The default is 30 seconds.
