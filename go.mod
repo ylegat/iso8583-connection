@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/moov-io/iso8583 v0.22.0
 	github.com/stretchr/testify v1.9.0
+	golang.org/x/sys v0.30.0
 )
 
 require (

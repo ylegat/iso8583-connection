@@ -18,6 +18,7 @@ type Options struct {
 	// The default is 10 seconds.
 	ConnectTimeout time.Duration
 
+	// KeepAliveConfig sets TCP keep-alive options
 	KeepAliveConfig net.KeepAliveConfig
 
 	// SendTimeout sets the timeout for a Send operation.

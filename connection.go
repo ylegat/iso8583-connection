@@ -14,6 +14,7 @@ import (
 	"github.com/moov-io/iso8583"
 	iso8583Errors "github.com/moov-io/iso8583/errors"
 	"github.com/moov-io/iso8583/utils"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -169,6 +170,24 @@ func (c *Connection) ConnectCtx(ctx context.Context) error {
 		conn, err = d.Dial("tcp", c.addr)
 	}
 
+	// align TCP_USER_TIMEOUT with keep alive config
+	if c.Opts.KeepAliveConfig.Enable {
+		sc, err := conn.(*net.TCPConn).SyscallConn()
+		if err != nil {
+			return fmt.Errorf("connecting to server: %w", err)
+		}
+
+		// cf TCP_USER_TIMEOUT value in https://github.com/torvalds/linux/blob/master/include/uapi/linux/tcp.h#L108
+		const tcpUserTimeoutOption = 18
+		tcpUserTimeoutDuration := c.Opts.KeepAliveConfig.Idle
+		err = sc.Control(func(fd uintptr) {
+			err = unix.SetsockoptInt(int(fd), unix.IPPROTO_TCP, tcpUserTimeoutOption, int(tcpUserTimeoutDuration.Milliseconds()))
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	if err != nil {
 		return fmt.Errorf("connecting to server %s: %w", c.addr, err)
 	}
@@ -176,7 +195,6 @@ func (c *Connection) ConnectCtx(ctx context.Context) error {
 	c.conn = conn
 
 	c.run()
-
 	onConnect := c.Opts.OnConnectCtx
 	if onConnect == nil && c.Opts.OnConnect != nil {
 		onConnect = func(_ context.Context, c *Connection) error {
