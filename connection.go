@@ -176,7 +176,7 @@ func (c *Connection) ConnectCtx(ctx context.Context) error {
 
 	// align TCP_USER_TIMEOUT with keep alive config
 	if c.Opts.KeepAliveConfig.Enable {
-		sc, err := conn.(*net.TCPConn).SyscallConn()
+		sc, err := conn.(*tls.Conn).NetConn().(*net.TCPConn).SyscallConn()
 		if err != nil {
 			return fmt.Errorf("error when fetching raw network connection : %w", err)
 		}
